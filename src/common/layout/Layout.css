@@ -2,11 +2,20 @@
   background-color: #d7faf726;
 }
 .header {
+  display: flex;
+  justify-content: space-between;
   height: 60px;
   padding: 0 20px;
   display: flex;
   box-shadow: 2px -3px 8px 1px #5e5d5d;
   background-color: #fff;
+}
+.main .error {
+  height: 48px;
+  background-color: rgb(194, 43, 43);
+  color: #fff;
+  text-align: center;
+  padding: 10px;
 }
 .optionClass {
   text-align: center;

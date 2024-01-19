@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+}
+.stepper {
+  margin-right: 50px;
+  display: flex;
+  flex-direction: column;
+}
+.stepper button {
+  margin-bottom: 20px;
+}
+.card-body {
+  width: 300px;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+}

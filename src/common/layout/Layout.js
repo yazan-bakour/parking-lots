@@ -3,7 +3,7 @@ import { useAPI } from "../../apiContext";
 import './Layout.css'
 
 const Layout = () => {
-  const { logoutUser, loginUser } = useAPI();
+  const { logoutUser, loginUser, errorMessage } = useAPI();
   const handleUserEvent = () => {
     const userLoggedIn = loginUser()
     if (userLoggedIn) {
@@ -12,6 +12,7 @@ const Layout = () => {
       return null
     }
   }
+
   return (
     <div className="main">
       <div className="header">
@@ -23,6 +24,7 @@ const Layout = () => {
           <p>{loginUser() ? 'Logout' : 'Login'}</p>
         </NavLink>
       </div>
+      {errorMessage && <div className="error">{errorMessage}, please login again</div>}
 
       <div className="bodyLaout"><Outlet /></div>
 
