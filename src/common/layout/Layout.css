@@ -10,9 +10,15 @@
   box-shadow: 2px -3px 8px 1px #5e5d5d;
   background-color: #fff;
 }
+.header .main-nav {
+  display: flex;
+  flex-direction: row;
+}
+.header .main-nav a {
+  margin-right: 40px;
+}
 .main .error {
-  height: 48px;
-  background-color: rgb(194, 43, 43);
+  background-color: rgb(180, 56, 56);
   color: #fff;
   text-align: center;
   padding: 10px;

@@ -3,7 +3,7 @@ import { useAPI } from "../../apiContext";
 import "./Overview.css"
 
 const Overview = () => {
-  const { newSpacesList, spacesList, userInfo, startParkingSession, fetchSpacesList } = useAPI()
+  const { spacesList, userInfo, startParkingSession, fetchSpacesList } = useAPI()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [vehicleType, setVehicleType] = useState("");
@@ -76,7 +76,7 @@ const Overview = () => {
       <div className="cards">
         {
           spacesList?.parkingSpaces?.map((space, index) => (
-            <div className="card-body">
+            <div className="card-body" key={space.parkingSpaceId}>
               <div>
                 <p>{space.vehicleType === null ? 'Residence' : space.vehicleType}</p>
                 <p>{space.occupancy}/{space.capacity}</p>

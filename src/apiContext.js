@@ -7,6 +7,7 @@ const BASE_URL = 'https://parkdemeer-afde952e3fef.herokuapp.com';
 export function APIContextProvider({ children }) {
   const [userInfo, setUserInfo] = useState(null);
   const [spacesList, setSpacesList] = useState([]);
+  const [sessionsList, setSessionsList] = useState([]);
   const [newSpacesList, setNewSpacesList] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -23,6 +24,25 @@ export function APIContextProvider({ children }) {
     return localStorage.getItem(`accessToken`)
   }
 
+  const userAuth = () => {
+    return userInfo
+  }
+
+  const userInfoResponse = async () => {
+    try {
+      const accessToken = loginUser()
+      const info = await axios.get(`${BASE_URL}/v1/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      setErrorMessage('')
+      setUserInfo(info)
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  }
+
   const postUserAuth = async (email, password) => {
     try {
       const { data } = await axios.post(`${BASE_URL}/v1/auth/password`,
@@ -32,20 +52,13 @@ export function APIContextProvider({ children }) {
         }
       );
       const accessToken = data.data.auth.accessToken;
-
-      const userInfoResponse = await axios.get(`${BASE_URL}/v1/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-      setUserInfo(userInfoResponse.data);
-
+      userInfoResponse()
       storeAccessToken(accessToken);
-      //ADD TOAST SUCCESS MESSAGE
+      setErrorMessage('')
       return accessToken;
     } catch (error) {
       //ADD TOAST FAIL MESSAGE
-      throw error;
+      setErrorMessage(error.message)
     }
   };
 
@@ -72,13 +85,14 @@ export function APIContextProvider({ children }) {
           }
         }
       );
+      setErrorMessage('')
       setNewSpacesList(response.data)
     } catch (error) {
       setErrorMessage(error.message)
     }
   };
 
-  const fetchSpacesList = async (offset = 0, limit = 20) => {
+  const fetchSpacesList = async (offset, limit) => {
     try {
       const accessToken = loginUser();
 
@@ -98,8 +112,52 @@ export function APIContextProvider({ children }) {
           }
         }
       );
+      setErrorMessage('')
       setSpacesList(response.data.data);
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+  };
 
+  const fetchSessionsList = async (
+    offset,
+    limit,
+    isSessionEnded,
+    sessionStartedAtFrom,
+    sessionStartedAtTo,
+    sessionEndedAtFrom,
+    sessionEndedAtTo,
+    vehicleLicensePlate,
+    vehicleType
+  ) => {
+    try {
+      const accessToken = loginUser();
+
+      if (!accessToken) {
+        throw new Error("User not authenticated");
+      }
+      const response = await axios.get(
+        `${BASE_URL}/v1/parking/sessions/list`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          params: {
+            offset,
+            limit,
+            isSessionEnded,
+            sessionStartedAtFrom,
+            sessionStartedAtTo,
+            sessionEndedAtFrom,
+            sessionEndedAtTo,
+            vehicleLicensePlate,
+            vehicleType,
+          },
+        }
+      );
+      setSessionsList(response.data)
+      console.log("Sessions list fetched:", response.data);
+      return response.data;
     } catch (error) {
       setErrorMessage(error.message)
     }
@@ -116,7 +174,10 @@ export function APIContextProvider({ children }) {
         fetchSpacesList,
         newSpacesList,
         spacesList,
-        errorMessage
+        errorMessage,
+        fetchSessionsList,
+        userInfoResponse,
+        sessionsList
       }}
     >
       {children}

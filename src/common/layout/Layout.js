@@ -16,9 +16,15 @@ const Layout = () => {
   return (
     <div className="main">
       <div className="header">
-        <NavLink to={`/overview`} >
-          <p>Overview</p>
-        </NavLink>
+        <div className="main-nav">
+          <NavLink to={`/overview`} >
+            <p>Overview</p>
+          </NavLink>
+
+          <NavLink to={`/sessions`} >
+            <p>Sessions</p>
+          </NavLink>
+        </div>
 
         <NavLink to={`/login`} onClick={handleUserEvent} >
           <p>{loginUser() ? 'Logout' : 'Login'}</p>

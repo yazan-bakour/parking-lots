@@ -1,0 +1,30 @@
+.table {
+  overflow-x: auto;
+  width: 100%;
+}
+.table .filters {
+  max-width: 1310px;
+  margin: 0 auto 30px auto;
+  padding: 0 25px;
+}
+.table .filters > * {
+  margin-right: 20px;
+}
+
+.table th {
+  padding: 0 25px 25px 25px;
+  text-align: left;
+}
+
+.table td {
+  padding: 0 25px 25px 25px;
+  text-align: left;
+}
+
+.table table {
+  width: 1330px;
+  margin: 0 auto;
+  padding: 20px 0;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border-radius: 15px;
+}
