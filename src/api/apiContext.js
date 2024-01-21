@@ -1,5 +1,6 @@
 import React, { useContext, createContext, useState } from "react";
 import axios from "axios";
+import createApiRequest from "./apiUtility";
 
 const APIContext = createContext();
 const BASE_URL = 'https://parkdemeer-afde952e3fef.herokuapp.com';
@@ -10,6 +11,14 @@ export function APIContextProvider({ children }) {
   const [sessionsList, setSessionsList] = useState([]);
   const [newSpacesList, setNewSpacesList] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const showErrorWithTimeout = (message, timeout = 3000) => {
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage('');
+    }, timeout);
+  };
 
   const storeAccessToken = (token) => {
     localStorage.setItem(`accessToken`, token);
@@ -17,15 +26,10 @@ export function APIContextProvider({ children }) {
 
   const logoutUser = () => {
     localStorage.removeItem(`accessToken`);
-    setErrorMessage('')
   };
 
   const loginUser = () => {
     return localStorage.getItem(`accessToken`)
-  }
-
-  const userAuth = () => {
-    return userInfo
   }
 
   const userInfoResponse = async () => {
@@ -36,12 +40,41 @@ export function APIContextProvider({ children }) {
           Authorization: `Bearer ${accessToken}`
         }
       });
-      setErrorMessage('')
       setUserInfo(info)
     } catch (error) {
-      setErrorMessage(error.message)
+      showErrorWithTimeout(error)
     }
   }
+
+  const getSessionNewList = async (id) => {
+    try {
+      setLoading(true);
+      await fetchSessionsList(0, 0, null, null, null, null, null, null, null);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const updatedSessionsList = sessionsList?.data?.parkingSessions.filter(session => session.parkingSpaceId === id)
+  
+      let list = [];
+      updatedSessionsList?.forEach((session) => {
+        list.push({
+          spaceType:
+            session.parkingSpaceId === 1
+              ? 'Residence'
+              : session.parkingSpaceId === 2
+              ? 'Non-residence Car'
+              : 'Non-residence Motorbike',
+          plateNumber: session.vehicleLicensePlate,
+          vehicleType: session.vehicleType,
+          parkingSessionId: session.parkingSessionId,
+        });
+      });
+  
+      return list;
+    } catch (error) {
+      showErrorWithTimeout(error)
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const postUserAuth = async (email, password) => {
     try {
@@ -54,16 +87,15 @@ export function APIContextProvider({ children }) {
       const accessToken = data.data.auth.accessToken;
       userInfoResponse()
       storeAccessToken(accessToken);
-      setErrorMessage('')
       return accessToken;
     } catch (error) {
-      //ADD TOAST FAIL MESSAGE
-      setErrorMessage(error.message)
+      showErrorWithTimeout(error)
     }
   };
 
   const startParkingSession = async (vehicleType, isResident, vehicleLicensePlate) => {
     try {
+      setLoading(true)
       const accessToken = loginUser();
 
       if (!accessToken) {
@@ -85,15 +117,47 @@ export function APIContextProvider({ children }) {
           }
         }
       );
-      setErrorMessage('')
       setNewSpacesList(response.data)
     } catch (error) {
-      setErrorMessage(error.message)
+      showErrorWithTimeout(error)
+    } finally {
+      setLoading(false)
+    }
+  };
+
+  const endParkingSession = async (id) => {
+    try {
+      setLoading(true)
+      const accessToken = loginUser();
+
+      if (!accessToken) {
+        throw new Error("User not authenticated");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/v1/parking/session/end`,
+        {
+          parkingSession: {
+            id
+          }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      );
+      setNewSpacesList(response.data)
+    } catch (error) {
+      showErrorWithTimeout(error)
+    } finally {
+      setLoading(false)
     }
   };
 
   const fetchSpacesList = async (offset, limit) => {
     try {
+      setLoading(true)
       const accessToken = loginUser();
 
       if (!accessToken) {
@@ -112,10 +176,11 @@ export function APIContextProvider({ children }) {
           }
         }
       );
-      setErrorMessage('')
       setSpacesList(response.data.data);
     } catch (error) {
-      setErrorMessage(error.message)
+      showErrorWithTimeout(error)
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -131,6 +196,7 @@ export function APIContextProvider({ children }) {
     vehicleType
   ) => {
     try {
+      setLoading(true)
       const accessToken = loginUser();
 
       if (!accessToken) {
@@ -159,7 +225,9 @@ export function APIContextProvider({ children }) {
       console.log("Sessions list fetched:", response.data);
       return response.data;
     } catch (error) {
-      setErrorMessage(error.message)
+      showErrorWithTimeout(error)
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -171,13 +239,16 @@ export function APIContextProvider({ children }) {
         loginUser,
         userInfo,
         startParkingSession,
+        endParkingSession,
         fetchSpacesList,
         newSpacesList,
         spacesList,
         errorMessage,
         fetchSessionsList,
+        getSessionNewList,
         userInfoResponse,
-        sessionsList
+        sessionsList,
+        loading
       }}
     >
       {children}

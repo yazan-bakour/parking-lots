@@ -1,5 +1,5 @@
 import { useLocation, Navigate } from "react-router-dom";
-import { useAPI } from "../apiContext";
+import { useAPI } from "../api/apiContext";
 
 export function RequireAuth({ children }) {
   const { loginUser } = useAPI();

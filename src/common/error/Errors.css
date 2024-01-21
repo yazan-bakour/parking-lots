@@ -1,0 +1,22 @@
+.error-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.error-container p {
+  font-size: 74px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.error-container span {
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 1px solid;
+  margin-bottom: 30px;
+  line-height: 70px;
+}
+.error-container button {
+  border-radius: 15px;
+  height: 30px;
+  border: 0;
+}

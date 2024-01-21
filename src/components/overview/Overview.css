@@ -9,9 +9,44 @@
 .stepper button {
   margin-bottom: 20px;
 }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 20px;
+  color: #fff;
+}
 .card-body {
   width: 300px;
-  border: 1px solid #ddd;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+.card-content {
   padding: 20px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+.card-content button {
+  border: 0;
+  border-radius: 15px;
+  padding: 6px 12px;
+}
+.card-content button:hover {
+  opacity: 80%;
+}
+.progress-bar {
+  height: 15px;
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+}
+.progress-fill p {
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
 }

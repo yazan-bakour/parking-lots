@@ -1,6 +1,7 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { useAPI } from "../../apiContext";
+import { useAPI } from "../../api/apiContext";
 import './Layout.css'
+import Errors from "../error/Errors";
 
 const Layout = () => {
   const { logoutUser, loginUser, errorMessage } = useAPI();
@@ -15,24 +16,50 @@ const Layout = () => {
 
   return (
     <div className="main">
-      <div className="header">
-        <div className="main-nav">
-          <NavLink to={`/overview`} >
+      <div className="header b-d-blue">
+        <div className="main-nav t-white">
+          <NavLink 
+            to={`/overview`} 
+            className={({ isActive }) =>
+              isActive ? "t-white" : "t-pending"
+            }>
             <p>Overview</p>
           </NavLink>
 
-          <NavLink to={`/sessions`} >
+          <NavLink 
+            to={`/sessions`} 
+            className={({ isActive }) =>
+              isActive ? "t-white" : "t-pending"
+            } 
+          >
             <p>Sessions</p>
+          </NavLink>
+
+          <NavLink 
+            to={`/finance`} 
+            className={({ isActive }) =>
+              isActive ? "t-white" : "t-pending"
+            } 
+          >
+            <p>Finance</p>
           </NavLink>
         </div>
 
-        <NavLink to={`/login`} onClick={handleUserEvent} >
+        <NavLink 
+          to={`/login`} 
+          onClick={handleUserEvent} 
+          className={({ isActive }) =>
+            isActive ? "t-white" : "t-pending"
+          } 
+        >
           <p>{loginUser() ? 'Logout' : 'Login'}</p>
         </NavLink>
       </div>
-      {errorMessage && <div className="error">{errorMessage}, please login again</div>}
+      {errorMessage && <div className="error">{errorMessage.response?.data.status.message}</div>}
 
-      <div className="bodyLaout"><Outlet /></div>
+      <div className="bodyLaout">
+        <Outlet />
+      </div>
 
     </div>
   );

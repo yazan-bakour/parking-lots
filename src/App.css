@@ -1,7 +1,53 @@
 .App {
   text-align: center;
 }
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
 
+.b-green {
+  background-color: #00997f;
+}
+.b-red {
+  background-color: rgb(255 86 86);
+}
+.b-purple {
+  background-color: #6434fc;
+}
+.b-d-blue {
+  background-color: #1e274a;
+}
+.b-white {
+  background-color: #fff;
+}
+.t-d-blue {
+  color: #1e274a;
+}
+.t-white {
+  color: #fff
+}
+.t-pending {
+  color: #ffffff80
+}
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 30px;
+  left: 0;
+  background-color: #282c34ad;
+  z-index: 6;
+}
+.loader-container .loader {
+  height: 80px
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -13,6 +59,22 @@
   }
 }
 
+.card {
+  box-shadow: rgba(0, 0, 0, 0.10) 0px 5px 15px;
+  border-radius: 15px;
+  background-color: #fff;
+  border-color: #fff;
+}
+
+button {
+  cursor: pointer;
+}
+
+input, select {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 3px 15px;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

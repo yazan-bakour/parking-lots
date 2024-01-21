@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useAPI } from "./apiContext";
+import { useAPI } from "./api/apiContext";
 import Layout from "./common/layout/Layout";
 import Overview from "./components/overview/Overview";
 import Login from "./components/login/Login";
@@ -10,7 +10,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import './App.css';
 
 function App() {
-  const { loginUser, userInfo, userInfoResponse } = useAPI()
+  const { loginUser, errorMessage, userInfoResponse, logoutUser } = useAPI()
+  console.log('WWW', errorMessage)
   const [isCheckingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate()
   let location = useLocation();
@@ -20,9 +21,11 @@ function App() {
     const checkAuthStatus = async () => {
       try {
         const accessToken = loginUser();
-        if (accessToken) {
+        if (accessToken && errorMessage?.response?.status !== 401) {
           setCheckingAuth(false);
-          navigate("/overview", { state: { from: location }, replace: true })
+          if (location.pathname === "/login") {
+            navigate("/overview", { state: { from: location }, replace: true })
+          }
         } else {
           setCheckingAuth(false);
         }
@@ -31,6 +34,7 @@ function App() {
         setCheckingAuth(false);
       }
     };
+
     
     checkAuthStatus();
   }, []);
@@ -44,6 +48,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/overview" element={ <RequireAuth><Overview /></RequireAuth> }/>
         <Route path="/sessions" element={ <RequireAuth><Sessions /></RequireAuth> }/>
+        {/* <Route path="/finance" element={ <RequireAuth><Finance /></RequireAuth> }/> */}
         <Route path="/login" element={<Login />} />
       </Route>
     </Routes>

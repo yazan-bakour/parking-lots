@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useAPI } from "../../apiContext";
+import { useAPI } from "../../api/apiContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import './Login.css'
     
 const Login = () => {
   const [email, setEmail] = useState('super@parkdemeer.nl')
@@ -24,7 +25,7 @@ const Login = () => {
   }
   
   return (
-    <div className="form">
+    <div className="form card">
       <form onSubmit={handleSubmit}>
         <div className="input-container">
           <label>Username </label>

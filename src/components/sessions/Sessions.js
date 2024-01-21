@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
-import { useAPI } from "../../apiContext";
+import { useAPI } from "../../api/apiContext";
 import "./Sessions.css"
     
 const Sessions = () => {
-  const { fetchSessionsList, sessionsList } = useAPI()
+  const { fetchSessionsList, sessionsList, loading } = useAPI()
   const [filteredSessions, setFilteredSessions] = useState(sessionsList?.data?.parkingSessions || []);
   const [selectedSpaceId, setSelectedSpaceId] = useState("");
   const [sessionStartedAt, setSessionStartedAt] = useState(null);
   const [sessionEndedAt, setSessionEndedAt] = useState(null);
   const [isSessionEnded, setIsSessionEnded] = useState(false);
-  const [listLimit, setListLimit] = useState(sessionsList?.data?.parkingSessionsTotalCount || 0)
+  const [listLimit, setListLimit] = useState(0)
   const [offset, setOffset] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchSessionsList(offset, 0, null, null, null, null, null, null, null);
+        await fetchSessionsList(0, 0, null, null, null, null, null, null, null);
       } catch (error) {
         console.error("Error fetching new session list", error.message);
       }
     };
     fetchData();
-    //if adding listLimit here api call will work, but filtering the data setFilteredSessions(residence) doesn't
   }, []);
 
   useEffect(() => {
@@ -46,22 +46,43 @@ const Sessions = () => {
     if (value === 1) {
       setSelectedSpaceId(residenceVehicleType);
       setFilteredSessions(residence);
-      setListLimit(residence.length)
     } else if (value === 2) {
       setSelectedSpaceId(nonResidenceCarVehicleType);
       setFilteredSessions(nonResidenceCar)
-      setListLimit(nonResidenceCar.length)
     } else if (value === 3) {
       setSelectedSpaceId(nonResidenceMotoVehicleType);
       setFilteredSessions(nonResidenceMoto)
-      setListLimit(nonResidenceMoto.length)
 
     } else {
       setSelectedSpaceId("");
       setFilteredSessions(sessionsList?.data?.parkingSessions);
-      setListLimit(0)
     }
   };
+
+  const converParkingIdToType = (data) => {
+    const car = 'car'
+    const motor = 'motor'
+    const residence = 'residence'
+
+    switch (data) {
+      case 1:
+        return residence
+      case 2:
+        return car
+      default: 
+      return motor
+    }
+  }
+
+  const convertSessionLengthFormat = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  }
+
+  const convertDate = (date) => {
+    return new Date(date).toISOString().slice(0, 16)
+  }
 
   const handleSessionStartDateChange = (value) => {
     if (value === "") {
@@ -103,55 +124,122 @@ const Sessions = () => {
     }
   };
 
+  const calcPrice = (id, time) => {
+    let price = 0
+    const hours = Math.floor(time / 60)
+    if (id === 3) {
+      price = 3 * hours
+    } else if (id === 2) {
+      price = 5 * hours
+    } else {
+      price = 0
+    }
+
+    return price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+  }
+
   const renderTableRows = () => {
     return filteredSessions.map((session) => (
       <tr key={session.parkingSessionId}>
-        <td>{session.vehicleLicensePlate}</td>
+        <td>
+          <img src={`/assets/${converParkingIdToType(session.parkingSpaceId)}.svg`} alt={converParkingIdToType(session.parkingSpaceId)} />
+        </td>
+        <td>
+          <div className={session.isSessionEnded ? 'b-red circle' : 'b-green circle'} />
+        </td>
         <td>{session.vehicleType}</td>
-        <td>{session.parkingSpaceId}</td>
-        {/* <td>{session.parkingSessionId}</td> */}
-        <td>{session.isSessionEnded ? 'Ended' : 'Active'}</td>
-        <td>{session.sessionLengthInHoursMinutes}</td>
-        <td>{session.sessionStartedAt}</td>
-        <td>{session.sessionEndedAt || 'N/A'}</td>
+        <td>{session.vehicleLicensePlate}</td>
+        <td>{convertSessionLengthFormat(session.sessionLengthInHoursMinutes)}</td>
+        <td>{convertDate(session.sessionStartedAt)}</td>
+        <td>{convertDate(session.sessionEndedAt) || 'N/A'}</td>
+        <td>€ {calcPrice(session.parkingSpaceId, session.sessionLengthInHoursMinutes)}</td>
       </tr>
     ));
   };
 
+  // const handlePreviousPage = () => {
+  //   const newOffset = Math.max(offset - 10, 0);
+  //   setOffset(newOffset);
+  // };
+
+  // const handleNextPage = () => {
+  //   // const newOffset = Math.min(offset + 10, listLimit - 10);
+  //   setOffset(offset + 5);
+  // };
+  
+
   return (
     <div className="table">
       <div className="filters">
-        <select onChange={(e) => handleSessionTypeChange(Number(e.target.value))}>
-          <option value="">Session Type</option>
-          <option value={1}>Residence</option>
-          <option value={2}>Non-residence CAR</option>
-          <option value={3}>Non-residence MOTORCYCLE</option>
-        </select>
-        <input type="datetime-local" onChange={(e) => handleSessionStartDateChange(e.target.value)} />
-        <input type="datetime-local" onChange={(e) => handleSessionEndDateChange(e.target.value)} />
-        <select onChange={(e) => handleSessionStatusChange(e.target.value)}>
-          <option value="">Session Status</option>
-          <option value={true}>Ended</option>
-          <option value={false}>Active</option>
-        </select>
+        <div>
+          <p>Session Type</p>
+          <select
+            onChange={(e) => handleSessionTypeChange(Number(e.target.value))}
+          >
+            <option value="">Session Type</option>
+            <option value={1}>Residence</option>
+            <option value={2}>Non-residence CAR</option>
+            <option value={3}>Non-residence MOTORCYCLE</option>
+          </select>
+        </div>
+        <div>
+          <p>Start date</p>
+          <input
+            type="datetime-local"
+            onChange={(e) => handleSessionStartDateChange(e.target.value)}
+          />
+        </div>
+        <div>
+          <p>End date</p>
+          <input
+            type="datetime-local"
+            onChange={(e) => handleSessionEndDateChange(e.target.value)}
+          />
+        </div>
+        <div>
+          <p>Status</p>
+          <select onChange={(e) => handleSessionStatusChange(e.target.value)}>
+            <option value="">Session Status</option>
+            <option value={true}>Ended</option>
+            <option value={false}>Active</option>
+          </select>
+        </div>
       </div>
-      <table>
+      <table className="card">
         <thead>
           <tr>
+            <th>Parking Space ID</th>
+            <th>Session Status</th>
             <th>Vehicle Type</th>
             <th>Vehicle License Plate</th>
-            <th>Parking Space ID</th>
-            {/* <th>ID</th> */}
-            <th>Session Status</th>
             <th>Session Length</th>
             <th>Session Started At</th>
             <th>Session Ended At</th>
+            <th>Prices</th>
           </tr>
         </thead>
-        <tbody>
-          {renderTableRows()}
-        </tbody>
+        {loading && <div className="loader-container"><img className="loader" src="/assets/loader.gif" alt="loader" /></div>}
+        <tbody>{renderTableRows()}</tbody>
       </table>
+      {/* <div className="pagination">
+        <button 
+          onClick={handlePreviousPage} 
+          // disabled={offset === 0}
+        >
+          Previous
+        </button>
+        <span>
+          {`Page ${Math.ceil((offset + 1) / 10)} of ${Math.ceil(
+            listLimit / 10
+          )}`}
+        </span>
+        <button 
+          onClick={handleNextPage} 
+          // disabled={offset + 10 >= listLimit}
+        >
+          Next
+        </button>
+      </div> */}
     </div>
   );
 };
