@@ -3,6 +3,7 @@ import { useAPI } from "../../api/apiContext";
 import "./Overview.css"
 import "../../common/modal/Modal.css"
 import Modal from "../../common/modal/Modal";
+import Card from "../../common/card/Card";
 
 const Overview = () => {
   const { loading, spacesList, getSessionNewList, endParkingSession, startParkingSession, fetchSpacesList } = useAPI()
@@ -25,7 +26,7 @@ const Overview = () => {
       }
     };
     fetchData();
-  }, [parkingId]);
+  }, []);
 
   const handleStartSession = (cardId) => {
     setIsEnding(false)
@@ -127,25 +128,15 @@ const Overview = () => {
       <div className="cards">
         {
           spacesList?.parkingSpaces?.map((space) => (
-            <div className="card-body card" key={space.parkingSpaceId}>
-              <div className="card-header b-purple">
-                <p>{space.vehicleType === null ? 'Residence' : space.vehicleType}</p>
-                <p>{space.occupancy}/{space.capacity}</p>
-              </div>
-              <div className="card-content">
-                <div className="price">
-                </div>
-                <div className="buttons">
-                  <button className="start t-white b-green" onClick={() => handleStartSession(space.vehicleType === null ? 'residence' : space.vehicleType)}>Start session</button>
-                  <button className="end t-white b-red" onClick={() => handleEndSession(space.vehicleType === null ? 'residence' : space.vehicleType, space.parkingSpaceId)}>End session</button>
-                </div>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill t-white" style={{ width: `${(space.occupancy / space.capacity) * 100}%` }}>
-                  { ((space.occupancy / space.capacity) * 100 > 20) && <p>{(space.occupancy / space.capacity) * 100}%</p>}
-                </div>
-              </div>
-            </div>
+            <Card 
+              key={space.parkingSpaceId} 
+              parkingSpaceId={space.parkingSpaceId} 
+              vehicleType={space.vehicleType} 
+              occupancy={space.occupancy} 
+              capacity={space.capacity} 
+              handleStartSession={handleStartSession} 
+              handleEndSession={handleEndSession} 
+            />
           ))
         }
       </div>

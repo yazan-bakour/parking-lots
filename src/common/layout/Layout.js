@@ -35,14 +35,14 @@ const Layout = () => {
             <p>Sessions</p>
           </NavLink>
 
-          <NavLink 
+          {/* <NavLink 
             to={`/finance`} 
             className={({ isActive }) =>
               isActive ? "t-white" : "t-pending"
             } 
           >
             <p>Finance</p>
-          </NavLink>
+          </NavLink> */}
         </div>
 
         <NavLink 

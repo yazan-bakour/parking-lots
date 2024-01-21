@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../api/apiContext";
+import { formatNumber, convertDate } from "../../helper/helper"
 import Modal from "../../common/modal/Modal";
 import "./Sessions.css"
     
@@ -70,18 +71,14 @@ const Sessions = () => {
     return `${hours}h ${remainingMinutes}m`;
   }
 
-  const convertDate = (date) => {
-    return new Date(date).toISOString().slice(0, 16)
-  }
-
   const handleSessionStartDateChange = (value) => {
     if (value === "") {
       setFilteredSessions(sessionsList?.data?.parkingSessions || []);
     } else {
-      const targetDate = new Date(value).toISOString().slice(0, 16);
+      const targetDate = (value)
   
       const filteredByStartDate = sessionsList?.data?.parkingSessions.filter((session) => {
-        const sessionDate = new Date(session.sessionStartedAt).toISOString().slice(0, 16);
+        const sessionDate = convertDate(session.sessionStartedAt);
         return targetDate <= sessionDate;
       });
 
@@ -93,10 +90,10 @@ const Sessions = () => {
     if (value === "") {
       setFilteredSessions(sessionsList?.data?.parkingSessions || []);
     } else {
-      const targetDate = new Date(value).toISOString().slice(0, 16);
+      const targetDate = convertDate(value);
   
       const filteredByStartDate = sessionsList?.data?.parkingSessions.filter((session) => {
-        const sessionDate = new Date(session.sessionEndedAt).toISOString().slice(0, 16);
+        const sessionDate = convertDate(session.sessionEndedAt);
         return targetDate <= sessionDate;
       });
 
@@ -107,10 +104,14 @@ const Sessions = () => {
   const handleSessionStatusChange = (value) => {
     const ended = sessionsList?.data?.parkingSessions.filter((session) => session.isSessionEnded === true)
     const active = sessionsList?.data?.parkingSessions.filter((session) => session.isSessionEnded === false)
-    if (value) {
+    if (value === 'true') {
       setFilteredSessions(ended)
-    } else {
+    }  
+    if (value === 'false') {
       setFilteredSessions(active)
+    }
+    if (value === '') {
+      setFilteredSessions(sessionsList?.data?.parkingSessions || [])
     }
   };
 
@@ -125,7 +126,16 @@ const Sessions = () => {
       price = 0
     }
 
-    return price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    return formatNumber(price)
+  }
+  const getTotalPrice = () => {
+    let total = 0
+    for (let i = 0; i < filteredSessions?.length; i++) {
+      const element = filteredSessions[i];
+      const price = calcPrice(element.parkingSpaceId, element.sessionLengthInHoursMinutes);
+      total += parseFloat(price.replace(/,/g, ''));
+    }
+    return formatNumber(total)
   }
 
   const handleEndSession = (sessionId, vehicleLicensePlate) => {
@@ -151,7 +161,7 @@ const Sessions = () => {
   }
 
   const renderTableRows = () => {
-    return filteredSessions.map((session) => (
+    return filteredSessions?.map((session) => (
       <tr key={session.parkingSessionId}>
         <td>
           <img src={`/assets/${converParkingIdToType(session.parkingSpaceId)}.svg`} alt={converParkingIdToType(session.parkingSpaceId)} />
@@ -178,6 +188,7 @@ const Sessions = () => {
         <div>
           <p>Session Type</p>
           <select
+            className="session"
             onChange={(e) => handleSessionTypeChange(Number(e.target.value))}
           >
             <option value="">Session Type</option>
@@ -202,11 +213,15 @@ const Sessions = () => {
         </div>
         <div>
           <p>Status</p>
-          <select onChange={(e) => handleSessionStatusChange(e.target.value)}>
+          <select className="status" onChange={(e) => handleSessionStatusChange(e.target.value)}>
             <option value="">Session Status</option>
             <option value={true}>Ended</option>
             <option value={false}>Active</option>
           </select>
+        </div>
+        <div>
+          <p>Total sessions: <b>{filteredSessions?.length}</b></p>
+          <p>Total revanue: <b>€ {getTotalPrice()}</b></p>
         </div>
       </div>
 

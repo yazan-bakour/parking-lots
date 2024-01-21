@@ -68,10 +68,12 @@
 .modal select {
   height: 32px;
   width: 70%;
+  padding-left: 10px;
 }
 .modal input {
   height: 24px;
   width: 60%;
+  padding-left: 10px;
 }
 .modal .close {
   font-size: 18px;

@@ -4,12 +4,18 @@
 }
 .table .filters {
   display: flex;
-  max-width: 1310px;
+  max-width: 1010px;
   margin: 0 auto 30px auto;
-  padding: 0 25px;
+  justify-content: left;
+}
+.filters p {
+  font-size: 14px;
 }
 .table .filters select {
   height: 37px;
+}
+.table .filters .session {
+  width: 210px;
 }
 .table .loader-container {
   display: flex;
@@ -38,21 +44,22 @@
   border-radius: 100%;
 }
 .table th {
-  padding: 0 25px 25px 25px;
+  padding: 0 15px 25px 15px;
   text-align: left;
-  font-size: 14px;
+  font-size: 12px;
 }
 .table img {
   height: 32px;
 }
 
 .table td {
-  padding: 0 25px 25px 25px;
+  padding: 0 15px 25px 15px;
   text-align: left;
+  font-size: 12px;
 }
 
 .table table {
-  width: 1330px;
+  max-width: 1200px;
   margin: 0 auto 30px auto;
   padding: 20px 0;
 }

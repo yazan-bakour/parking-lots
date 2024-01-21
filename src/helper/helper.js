@@ -12,16 +12,10 @@ export function RequireAuth({ children }) {
   return children;
 }
 
-export const navigationManager = (location, user) => {
-  const pageLocation = location?.pathname.split("/")[1];
-  
-  if (!pageLocation) {
-    return null
-  }
-  let headerText = [];
+export function formatNumber(number) {
+  return number.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+}
 
-  //TODO ADD DYNAMIC HEADER NAV NAMES BASED ON USER AUTH
-
-  return headerText;
-};
-
+export function convertDate(date)  {
+  return new Date(date).toISOString().slice(0, 16)
+}
