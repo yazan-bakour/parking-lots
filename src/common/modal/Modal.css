@@ -34,7 +34,7 @@
 }
 .modal-content .search .suggestions {
   list-style: none;
-  height: 200px;
+  max-height: 200px;
   width: 100%;
   box-sizing: border-box;
   overflow: auto;
@@ -57,12 +57,21 @@
   align-items: center;
   justify-content: center;
 }
+.modal .search label {
+  width: 100%;
+}
 .modal label {
   text-align: left;
   margin-right: 10px;
+  width: 40%;
+}
+.modal select {
+  height: 32px;
+  width: 70%;
 }
 .modal input {
-  height: 24px
+  height: 24px;
+  width: 60%;
 }
 .modal .close {
   font-size: 18px;

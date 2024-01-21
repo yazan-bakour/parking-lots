@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useAPI } from "../../api/apiContext";
 import "./Overview.css"
 import "../../common/modal/Modal.css"
+import Modal from "../../common/modal/Modal";
 
 const Overview = () => {
   const { loading, spacesList, getSessionNewList, endParkingSession, startParkingSession, fetchSpacesList } = useAPI()
@@ -15,17 +16,10 @@ const Overview = () => {
   const [selectedId, setSelectedId] = useState('');
   const [parkingId, setParkingId] = useState('');
 
-  //TODO create Card and Modal components
-  //Add loading
-  //Handle errors
-  //Add floor stepper
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchSpacesList();
-        //Remove this and add toast
-        console.log("Spaces list updated:", spacesList);
       } catch (error) {
         console.error("Error fetching spaces list:", error.message);
       }
@@ -91,7 +85,6 @@ const Overview = () => {
     } catch (error) {
       console.error("Error ending session:", error.message);
     }
-    //TODO add taost messge
   }
 
   const handleModalSubmit = async () => {
@@ -140,8 +133,12 @@ const Overview = () => {
                 <p>{space.occupancy}/{space.capacity}</p>
               </div>
               <div className="card-content">
-                <button className="start t-white b-green" onClick={() => handleStartSession(space.vehicleType === null ? 'residence' : space.vehicleType)}>Start session</button>
-                <button className="end t-white b-red" onClick={() => handleEndSession(space.vehicleType === null ? 'residence' : space.vehicleType, space.parkingSpaceId)}>End session</button>
+                <div className="price">
+                </div>
+                <div className="buttons">
+                  <button className="start t-white b-green" onClick={() => handleStartSession(space.vehicleType === null ? 'residence' : space.vehicleType)}>Start session</button>
+                  <button className="end t-white b-red" onClick={() => handleEndSession(space.vehicleType === null ? 'residence' : space.vehicleType, space.parkingSpaceId)}>End session</button>
+                </div>
               </div>
               <div className="progress-bar">
                 <div className="progress-fill t-white" style={{ width: `${(space.occupancy / space.capacity) * 100}%` }}>
@@ -154,66 +151,29 @@ const Overview = () => {
       </div>
 
       {(isModalOpen && !isEnding) && (
-        <div className="modal-wrapper">
-          <div className="modal-out" onClick={handleModalClose}></div>
-          <div className="modal card">
-            <div className="modal-content">
-              <button className="close" onClick={handleModalClose}>
-                &times;
-              </button>
-              <div>
-                <label>Vehicle Type:</label>
-                <input
-                  type="text"
-                  value={vehicleType}
-                  readOnly={selectedCardId !== 'residence'}
-                  onChange={onChangeVehicleType}
-                />
-              </div>
-              <div>
-                <label>Plate Number:</label>
-                <input
-                  type="text"
-                  value={plateNumber}
-                  onChange={onChangePlateNumber}
-                />
-              </div>
-              <button className="cta b-green t-white" onClick={handleModalSubmit}>Start Session</button>
-            </div>
-          </div>
-
-        </div>
+        <Modal
+          isEnding={false}
+          handleModalClose={handleModalClose} 
+          selectedCardId={selectedCardId} 
+          onChangeVehicleType={onChangeVehicleType} 
+          vehicleType={vehicleType} 
+          plateNumber={plateNumber} 
+          onChangePlateNumber={onChangePlateNumber} 
+          handleModalSubmit={handleModalSubmit}
+        />
       )}
 
       {(isModalOpen && isEnding) && (
-        <div className="modal-wrapper">
-          <div className="modal-out" onClick={handleModalClose}></div>
-          <div className="modal card">
-            <div className="modal-content">
-              <button className="close" onClick={handleModalClose}>
-                &times;
-              </button>
-              <div className="search">
-                <label>Search for vehicle plate numbr :</label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleInputChange}
-                />
-                {suggestions?.length > 0 && (
-                  <ul className="suggestions">
-                    {suggestions?.map((suggestion) => (
-                      <li key={suggestion.parkingSessionId} onClick={() => handleSuggestionSelect(suggestion.parkingSessionId)}>
-                        {suggestion.plateNumber + ', ' + suggestion.spaceType}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <button className="cta b-red t-white" onClick={handleModalEndSession}>End Session</button>
-            </div>
-          </div>
-        </div>
+        <Modal
+          isEnding={true}
+          handleModalClose={handleModalClose}
+          searchTerm={searchTerm} 
+          handleInputChange={handleInputChange} 
+          suggestions={true} 
+          data={suggestions || []} 
+          handleSuggestionSelect={handleSuggestionSelect}
+          handleModalEndSession={handleModalEndSession}
+        />
       )}
     </div>
   );

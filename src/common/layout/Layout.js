@@ -4,7 +4,7 @@ import './Layout.css'
 import Errors from "../error/Errors";
 
 const Layout = () => {
-  const { logoutUser, loginUser, errorMessage } = useAPI();
+  const { logoutUser, loginUser, errorMessage, successMessage } = useAPI();
   const handleUserEvent = () => {
     const userLoggedIn = loginUser()
     if (userLoggedIn) {
@@ -55,7 +55,8 @@ const Layout = () => {
           <p>{loginUser() ? 'Logout' : 'Login'}</p>
         </NavLink>
       </div>
-      {errorMessage && <div className="error">{errorMessage.response?.data.status.message}</div>}
+      {errorMessage && <div className="message error">{errorMessage.response?.data.status.message}</div>}
+      {successMessage && <div className="message success">{successMessage}</div>}
 
       <div className="bodyLaout">
         <Outlet />

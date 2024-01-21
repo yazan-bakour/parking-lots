@@ -11,12 +11,19 @@ export function APIContextProvider({ children }) {
   const [sessionsList, setSessionsList] = useState([]);
   const [newSpacesList, setNewSpacesList] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const showErrorWithTimeout = (message, timeout = 3000) => {
     setErrorMessage(message);
     setTimeout(() => {
       setErrorMessage('');
+    }, timeout);
+  };
+  const showSuccessWithTimeout = (message, timeout = 3000) => {
+    setSuccessMessage(message);
+    setTimeout(() => {
+      setSuccessMessage('');
     }, timeout);
   };
 
@@ -41,6 +48,7 @@ export function APIContextProvider({ children }) {
         }
       });
       setUserInfo(info)
+      showSuccessWithTimeout(`Welcome ${info.data.data.user.id}!`)
     } catch (error) {
       showErrorWithTimeout(error)
     }
@@ -65,6 +73,7 @@ export function APIContextProvider({ children }) {
           plateNumber: session.vehicleLicensePlate,
           vehicleType: session.vehicleType,
           parkingSessionId: session.parkingSessionId,
+          minutes: session.sessionLengthInHoursMinutes
         });
       });
   
@@ -76,17 +85,30 @@ export function APIContextProvider({ children }) {
     }
   };
 
+  const getAllMinutes = async (id) => {
+    try {
+      setLoading(true);
+      const sessionsList = await getSessionNewList(id);
+      const minutesArray = sessionsList.map((session) => session.minutes || 0);
+      return minutesArray;
+    } catch (error) {
+      showErrorWithTimeout(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const postUserAuth = async (email, password) => {
     try {
       const { data } = await axios.post(`${BASE_URL}/v1/auth/password`,
         {
           email,
           password
-        }
-      );
-      const accessToken = data.data.auth.accessToken;
-      userInfoResponse()
-      storeAccessToken(accessToken);
+        },
+        );
+        const accessToken = data.data.auth.accessToken;
+        storeAccessToken(accessToken);
+        await userInfoResponse()
       return accessToken;
     } catch (error) {
       showErrorWithTimeout(error)
@@ -118,6 +140,7 @@ export function APIContextProvider({ children }) {
         }
       );
       setNewSpacesList(response.data)
+      showSuccessWithTimeout('New session started successfully!')
     } catch (error) {
       showErrorWithTimeout(error)
     } finally {
@@ -148,6 +171,7 @@ export function APIContextProvider({ children }) {
         }
       );
       setNewSpacesList(response.data)
+      showSuccessWithTimeout('Parking session ended successfully!')
     } catch (error) {
       showErrorWithTimeout(error)
     } finally {
@@ -222,7 +246,6 @@ export function APIContextProvider({ children }) {
         }
       );
       setSessionsList(response.data)
-      console.log("Sessions list fetched:", response.data);
       return response.data;
     } catch (error) {
       showErrorWithTimeout(error)
@@ -248,7 +271,9 @@ export function APIContextProvider({ children }) {
         getSessionNewList,
         userInfoResponse,
         sessionsList,
-        loading
+        loading,
+        successMessage,
+        getAllMinutes
       }}
     >
       {children}

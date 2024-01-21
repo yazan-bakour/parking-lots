@@ -8,6 +8,8 @@
   padding: 0 50px;
   display: flex;
   box-shadow: 2px -3px 8px 1px #5e5d5d;
+  position: relative;
+  z-index: 1;
 }
 .header a {
   text-decoration: none;
@@ -20,14 +22,23 @@
 .header .main-nav a {
   margin-right: 40px;
 }
-.main .error {
-  background-color: rgb(180, 56, 56);
+.main .message {
   color: #fff;
   text-align: center;
-  padding: 10px;
-  /* animation: slide 0.8s ease 0s 1 normal forwards; */
+  padding: 10px 0;
+  position: absolute;
+  top: 60px;
+  width: 100%;
+  z-index: 0;
+  animation: slide 0.8s ease 0s 1 normal forwards;
 }
-/* @keyframes slide {
+.main .success {
+  background-color: #00997f;
+}
+.main .error {
+  background-color: rgb(180, 56, 56);
+}
+@keyframes slide {
 	0% {
 		opacity: 0;
 		transform: translateY(-250px);
@@ -37,7 +48,7 @@
 		opacity: 1;
 		transform: translateY(0);
 	}
-} */
+}
 .optionClass {
   text-align: center;
   width: 100px;

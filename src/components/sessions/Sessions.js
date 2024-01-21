@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import { useAPI } from "../../api/apiContext";
+import Modal from "../../common/modal/Modal";
 import "./Sessions.css"
     
 const Sessions = () => {
-  const { fetchSessionsList, sessionsList, loading } = useAPI()
+  const { fetchSessionsList, sessionsList, loading, endParkingSession } = useAPI()
   const [filteredSessions, setFilteredSessions] = useState(sessionsList?.data?.parkingSessions || []);
-  const [selectedSpaceId, setSelectedSpaceId] = useState("");
-  const [sessionStartedAt, setSessionStartedAt] = useState(null);
-  const [sessionEndedAt, setSessionEndedAt] = useState(null);
-  const [isSessionEnded, setIsSessionEnded] = useState(false);
-  const [listLimit, setListLimit] = useState(0)
-  const [offset, setOffset] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState('');
+  const [plateNumber, setPlateNumber] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,25 +33,18 @@ const Sessions = () => {
   }, [sessionsList]);
 
   const handleSessionTypeChange = (value) => {
-    const residenceVehicleType = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 1)[0].vehicleType
-    const nonResidenceCarVehicleType = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 2)[0].vehicleType
-    const nonResidenceMotoVehicleType = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 3)[0].vehicleType
     const residence = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 1)
     const nonResidenceCar = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 2)
     const nonResidenceMoto = sessionsList?.data?.parkingSessions.filter( e => e.parkingSpaceId === 3)
     
     if (value === 1) {
-      setSelectedSpaceId(residenceVehicleType);
       setFilteredSessions(residence);
     } else if (value === 2) {
-      setSelectedSpaceId(nonResidenceCarVehicleType);
       setFilteredSessions(nonResidenceCar)
     } else if (value === 3) {
-      setSelectedSpaceId(nonResidenceMotoVehicleType);
       setFilteredSessions(nonResidenceMoto)
 
     } else {
-      setSelectedSpaceId("");
       setFilteredSessions(sessionsList?.data?.parkingSessions);
     }
   };
@@ -138,6 +128,28 @@ const Sessions = () => {
     return price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
   }
 
+  const handleEndSession = (sessionId, vehicleLicensePlate) => {
+    setIsModalOpen(true)
+    setSelectedId(sessionId)
+    setPlateNumber(vehicleLicensePlate)
+  }
+  const handleModalEndSession = async () => {
+    try {
+      if (selectedId) {
+        await endParkingSession(selectedId)
+      }
+      await fetchSessionsList(0, 0, null, null, null, null, null, null, null);
+      setIsModalOpen(false);
+      setSelectedId('');
+    } catch (error) {
+      console.error("Error ending session:", error.message);
+    }
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+  }
+
   const renderTableRows = () => {
     return filteredSessions.map((session) => (
       <tr key={session.parkingSessionId}>
@@ -153,20 +165,12 @@ const Sessions = () => {
         <td>{convertDate(session.sessionStartedAt)}</td>
         <td>{convertDate(session.sessionEndedAt) || 'N/A'}</td>
         <td>€ {calcPrice(session.parkingSpaceId, session.sessionLengthInHoursMinutes)}</td>
+        <td>
+          <button className="end t-white b-red" onClick={() => handleEndSession(session.parkingSessionId, session.vehicleLicensePlate)}>End</button>
+        </td>
       </tr>
     ));
   };
-
-  // const handlePreviousPage = () => {
-  //   const newOffset = Math.max(offset - 10, 0);
-  //   setOffset(newOffset);
-  // };
-
-  // const handleNextPage = () => {
-  //   // const newOffset = Math.min(offset + 10, listLimit - 10);
-  //   setOffset(offset + 5);
-  // };
-  
 
   return (
     <div className="table">
@@ -205,10 +209,11 @@ const Sessions = () => {
           </select>
         </div>
       </div>
+
       <table className="card">
         <thead>
           <tr>
-            <th>Parking Space ID</th>
+            <th>Parking Type</th>
             <th>Session Status</th>
             <th>Vehicle Type</th>
             <th>Vehicle License Plate</th>
@@ -216,30 +221,21 @@ const Sessions = () => {
             <th>Session Started At</th>
             <th>Session Ended At</th>
             <th>Prices</th>
+            <th>End session</th>
           </tr>
         </thead>
         {loading && <div className="loader-container"><img className="loader" src="/assets/loader.gif" alt="loader" /></div>}
         <tbody>{renderTableRows()}</tbody>
       </table>
-      {/* <div className="pagination">
-        <button 
-          onClick={handlePreviousPage} 
-          // disabled={offset === 0}
-        >
-          Previous
-        </button>
-        <span>
-          {`Page ${Math.ceil((offset + 1) / 10)} of ${Math.ceil(
-            listLimit / 10
-          )}`}
-        </span>
-        <button 
-          onClick={handleNextPage} 
-          // disabled={offset + 10 >= listLimit}
-        >
-          Next
-        </button>
-      </div> */}
+
+      {isModalOpen  && (
+        <Modal
+          sessionEnding={true}
+          handleModalClose={handleModalClose}
+          plateNumber={plateNumber}
+          handleModalEndSession={handleModalEndSession}
+        />
+      )}
     </div>
   );
 };
