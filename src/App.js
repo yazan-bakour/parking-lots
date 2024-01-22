@@ -10,13 +10,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import './App.css';
 
 function App() {
-  const { loginUser, errorMessage, userInfoResponse } = useAPI()
+  const { loginUser, errorMessage } = useAPI()
   const [isCheckingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate()
   let location = useLocation();
 
   useEffect(() => {
-    userInfoResponse();
     const checkAuthStatus = async () => {
       try {
         const accessToken = loginUser();

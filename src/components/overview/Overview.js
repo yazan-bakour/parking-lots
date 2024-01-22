@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAPI } from "../../api/apiContext";
 import "./Overview.css"
 import "../../common/modal/Modal.css"
@@ -17,15 +17,23 @@ const Overview = () => {
   const [selectedId, setSelectedId] = useState('');
   const [parkingId, setParkingId] = useState('');
 
+  // I used effect run ref to limit the api calls to one only, this happens because of StrictMode on development mode
+  const effectRan = useRef(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchSpacesList();
+        if (!effectRan.current) {
+          await fetchSpacesList();
+        }
       } catch (error) {
         console.error("Error fetching spaces list:", error.message);
       }
     };
     fetchData();
+    return () => {
+      effectRan.current = true
+    }
   }, []);
 
   const handleStartSession = (cardId) => {
@@ -111,6 +119,7 @@ const Overview = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedCardId(null);
+    setSearchTerm('')
     setSuggestions([]);
   };
 

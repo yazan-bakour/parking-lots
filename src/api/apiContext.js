@@ -13,12 +13,26 @@ export function APIContextProvider({ children }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const getCachedData = (key) => {
+    const cachedData = localStorage.getItem(key);
+    return cachedData ? JSON.parse(cachedData) : null;
+  };
+
+  const setCachedData = (key, data) => {
+    localStorage.setItem(key, JSON.stringify(data));
+  };
+
+  const clearCachedData = (key) => {
+    localStorage.removeItem(key);
+  };
+
   const showErrorWithTimeout = (message, timeout = 3000) => {
     setErrorMessage(message);
     setTimeout(() => {
       setErrorMessage('');
     }, timeout);
   };
+
   const showSuccessWithTimeout = (message, timeout = 3000) => {
     setSuccessMessage(message);
     setTimeout(() => {
@@ -32,6 +46,8 @@ export function APIContextProvider({ children }) {
 
   const logoutUser = () => {
     localStorage.removeItem(`accessToken`);
+    clearCachedData('spacesList')
+    clearCachedData('sessionsList')
   };
 
   const loginUser = () => {
@@ -138,6 +154,8 @@ export function APIContextProvider({ children }) {
           }
         }
       );
+      clearCachedData('spacesList')
+      clearCachedData('sessionsList')
       setNewSpacesList(response.data)
       showSuccessWithTimeout('New session started successfully!')
     } catch (error) {
@@ -169,6 +187,8 @@ export function APIContextProvider({ children }) {
           }
         }
       );
+      clearCachedData('spacesList')
+      clearCachedData('sessionsList')
       setNewSpacesList(response.data)
       showSuccessWithTimeout('Parking session ended successfully!')
     } catch (error) {
@@ -181,6 +201,12 @@ export function APIContextProvider({ children }) {
   const fetchSpacesList = async (offset, limit) => {
     try {
       setLoading(true)
+      const cachedUserInfo = getCachedData('spacesList');
+
+      if (cachedUserInfo) {
+        setSpacesList(cachedUserInfo);
+        return;
+      }
       const accessToken = loginUser();
 
       if (!accessToken) {
@@ -199,7 +225,9 @@ export function APIContextProvider({ children }) {
           }
         }
       );
+      setCachedData('spacesList', response.data.data);
       setSpacesList(response.data.data);
+      clearCachedData('sessionsList')
     } catch (error) {
       showErrorWithTimeout(error)
     } finally {
@@ -220,6 +248,12 @@ export function APIContextProvider({ children }) {
   ) => {
     try {
       setLoading(true)
+      const cachedUserInfo = getCachedData('sessionsList');
+
+      if (cachedUserInfo) {
+        setSessionsList(cachedUserInfo);
+        return;
+      }
       const accessToken = loginUser();
 
       if (!accessToken) {
@@ -244,6 +278,7 @@ export function APIContextProvider({ children }) {
           },
         }
       );
+      setCachedData('sessionsList', response.data);
       setSessionsList(response.data)
       return response.data;
     } catch (error) {

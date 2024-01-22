@@ -4,7 +4,6 @@ import { BrowserRouter } from "react-router-dom";
 import { APIContextProvider } from "./api/apiContext";
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,4 +15,3 @@ root.render(
     </APIContextProvider>
   </React.StrictMode>
 );
-reportWebVitals();

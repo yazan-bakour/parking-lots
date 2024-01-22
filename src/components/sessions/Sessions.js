@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAPI } from "../../api/apiContext";
 import { formatNumber, convertDate } from "../../helper/helper"
 import Modal from "../../common/modal/Modal";
@@ -11,15 +11,23 @@ const Sessions = () => {
   const [selectedId, setSelectedId] = useState('');
   const [plateNumber, setPlateNumber] = useState('');
 
+  // I used effect run ref to limit the api calls to one only, this happens because of StrictMode on development mode
+  const effectRan = useRef(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchSessionsList(0, 0, null, null, null, null, null, null, null);
+        if (!effectRan.current) {
+          await fetchSessionsList(0, 0, null, null, null, null, null, null, null);
+        }
       } catch (error) {
         console.error("Error fetching new session list", error.message);
       }
     };
     fetchData();
+    return () => {
+      effectRan.current = true
+    }
   }, []);
 
   useEffect(() => {
@@ -128,6 +136,7 @@ const Sessions = () => {
 
     return formatNumber(price)
   }
+
   const getTotalPrice = () => {
     let total = 0
     for (let i = 0; i < filteredSessions?.length; i++) {
@@ -143,6 +152,7 @@ const Sessions = () => {
     setSelectedId(sessionId)
     setPlateNumber(vehicleLicensePlate)
   }
+
   const handleModalEndSession = async () => {
     try {
       if (selectedId) {
@@ -167,7 +177,7 @@ const Sessions = () => {
           <img src={`/assets/${converParkingIdToType(session.parkingSpaceId)}.svg`} alt={converParkingIdToType(session.parkingSpaceId)} />
         </td>
         <td>
-          <div className={session.isSessionEnded ? 'b-red circle' : 'b-green circle'} />
+          <p className={session.isSessionEnded ? 'b-red circle' : 'b-green circle'} ></p>
         </td>
         <td>{session.vehicleType}</td>
         <td>{session.vehicleLicensePlate}</td>
