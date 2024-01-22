@@ -55,8 +55,8 @@ const Layout = () => {
           <p>{loginUser() ? 'Logout' : 'Login'}</p>
         </NavLink>
       </div>
-      {errorMessage && <div className="message error">{errorMessage.response?.data.status.message}</div>}
-      {successMessage && <div className="message success">{successMessage}</div>}
+      {errorMessage && <div className="message t-white b-red">{errorMessage.response?.data.status.message}</div>}
+      {successMessage && <div className="message t-white b-green">{successMessage}</div>}
 
       <div className="bodyLaout">
         <Outlet />

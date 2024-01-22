@@ -1,6 +1,5 @@
 import React, { useContext, createContext, useState } from "react";
 import axios from "axios";
-import createApiRequest from "./apiUtility";
 
 const APIContext = createContext();
 const BASE_URL = 'https://parkdemeer-afde952e3fef.herokuapp.com';
