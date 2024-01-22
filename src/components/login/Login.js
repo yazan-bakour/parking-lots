@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import './Login.css'
     
 const Login = () => {
-  const [email, setEmail] = useState('super@parkdemeer.nl')
-  const [password, setPassword] = useState('SUPER_USER_SECRET_PASS')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const { postUserAuth, loginUser } = useAPI();
   const navigate = useNavigate()
