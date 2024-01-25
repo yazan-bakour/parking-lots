@@ -66,6 +66,9 @@ export function APIContextProvider({ children }) {
       showSuccessWithTimeout(`Welcome ${info.data.data.user.id}!`)
     } catch (error) {
       showErrorWithTimeout(error)
+      clearCachedData('spacesList')
+      clearCachedData('sessionsList')
+      logoutUser()
     }
   }
 
@@ -95,19 +98,6 @@ export function APIContextProvider({ children }) {
       return list;
     } catch (error) {
       showErrorWithTimeout(error)
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getAllMinutes = async (id) => {
-    try {
-      setLoading(true);
-      const sessionsList = await getSessionNewList(id);
-      const minutesArray = sessionsList.map((session) => session.minutes || 0);
-      return minutesArray;
-    } catch (error) {
-      showErrorWithTimeout(error);
     } finally {
       setLoading(false);
     }
@@ -201,10 +191,10 @@ export function APIContextProvider({ children }) {
   const fetchSpacesList = async (offset, limit) => {
     try {
       setLoading(true)
-      const cachedUserInfo = getCachedData('spacesList');
+      const cachedSpacesData = getCachedData('spacesList');
 
-      if (cachedUserInfo) {
-        setSpacesList(cachedUserInfo);
+      if (cachedSpacesData) {
+        setSpacesList(cachedSpacesData);
         return;
       }
       const accessToken = loginUser();
@@ -248,10 +238,10 @@ export function APIContextProvider({ children }) {
   ) => {
     try {
       setLoading(true)
-      const cachedUserInfo = getCachedData('sessionsList');
+      const cachedSessionData = getCachedData('sessionsList');
 
-      if (cachedUserInfo) {
-        setSessionsList(cachedUserInfo);
+      if (cachedSessionData) {
+        setSessionsList(cachedSessionData);
         return;
       }
       const accessToken = loginUser();
@@ -306,8 +296,7 @@ export function APIContextProvider({ children }) {
         userInfoResponse,
         sessionsList,
         loading,
-        successMessage,
-        getAllMinutes
+        successMessage
       }}
     >
       {children}

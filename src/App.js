@@ -7,6 +7,7 @@ import Sessions from "./components/sessions/Sessions";
 import React, { useEffect, useState } from "react";
 import { RequireAuth } from "./helper/helper"
 import { useNavigate, useLocation } from "react-router-dom";
+import Loader from "./common/loader/Loader";
 import './App.css';
 
 function App() {
@@ -19,6 +20,11 @@ function App() {
     const checkAuthStatus = async () => {
       try {
         const accessToken = loginUser();
+        if (!accessToken) {
+          navigate("/login", { state: { from: location }, replace: true })
+        } else {
+          navigate("/overview", { state: { from: '/' }, replace: true })
+        }
         if (accessToken && errorMessage?.response?.status !== 401) {
           setCheckingAuth(false);
           if (location.pathname === "/login") {
@@ -33,12 +39,11 @@ function App() {
       }
     };
 
-    
     checkAuthStatus();
   }, []);
 
   if (isCheckingAuth) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

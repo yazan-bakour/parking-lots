@@ -3,6 +3,7 @@ import { useAPI } from "../../api/apiContext";
 import { formatNumber, convertDate } from "../../helper/helper"
 import Modal from "../../common/modal/Modal";
 import "./Sessions.css"
+import Loader from "../../common/loader/Loader";
     
 const Sessions = () => {
   const { fetchSessionsList, sessionsList, loading, endParkingSession } = useAPI()
@@ -249,7 +250,7 @@ const Sessions = () => {
             <th>End session</th>
           </tr>
         </thead>
-        {loading && <div className="loader-container"><img className="loader" src="/assets/loader.gif" alt="loader" /></div>}
+        {loading && <Loader />}
         <tbody>{renderTableRows()}</tbody>
       </table>
 

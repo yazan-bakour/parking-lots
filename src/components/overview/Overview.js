@@ -4,6 +4,7 @@ import "./Overview.css"
 import "../../common/modal/Modal.css"
 import Modal from "../../common/modal/Modal";
 import Card from "../../common/card/Card";
+import Loader from "../../common/loader/Loader";
 
 const Overview = () => {
   const { loading, spacesList, getSessionNewList, endParkingSession, startParkingSession, fetchSpacesList } = useAPI()
@@ -133,7 +134,7 @@ const Overview = () => {
 
   return (
     <div className="container">
-      {loading && <div className="loader-container"><img className="loader" src="/assets/loader.gif" alt="loader" /></div>}
+      {loading && <Loader />}
       <div className="cards">
         {
           spacesList?.parkingSpaces?.map((space) => (
